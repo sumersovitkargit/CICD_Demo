@@ -71,7 +71,7 @@ jobs:
       - name: Deploy to AKS
         run: |
           kubectl apply -f kubernetes/deploy.yml  
-          kubectl rollout status deployment/webapp 
+          kubectl rollout status deployment/webpage
       
       # Logout from Azure CLI
       - name: Logout from Azure CLI
