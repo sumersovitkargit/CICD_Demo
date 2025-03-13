@@ -1,9 +1,13 @@
 name: CI/CD Pipeline
 
 on:
-  push:
-    branches:
-      - main  # Trigger CI/CD on push to main branch
+  workflow_dispatch:
+    inputs:
+      environment-name:
+        type: choice
+        description: 'Environment'
+        required: true
+        options: ['dev', 'uat', 'prod']
 
 
 jobs:
@@ -70,8 +74,8 @@ jobs:
       # Deploy the new Docker image to AKS
       - name: Deploy to AKS
         run: |
-          kubectl apply -f kubernetes/deploy.yml  
-          kubectl rollout status deployment/webpage
+          kubectl apply -f kubernetes/deploy.yml -n ns-${{ github.event.inputs.environment-name }}
+          kubectl rollout status deployment/webpage -n ns-${{ github.event.inputs.environment-name }}
       
       # Logout from Azure CLI
       - name: Logout from Azure CLI
