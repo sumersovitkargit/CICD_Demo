@@ -1,30 +1,30 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: webapp
+  name: webpage
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: webapp
+      app: webpage
   template:
     metadata:
       labels:
-        app: webapp
+        app: webpage
     spec:
       containers:
-        - name: webapp
-          image: aksdeployment.azurecr.io/webapp:latest
+        - name: webpage
+          image: aksdeployment.azurecr.io/webpage:latest
           ports:
             - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: webapp-service
+  name: webpage-service
 spec:
   selector:
-    app: webapp
+    app: webpage
   ports:
     - protocol: TCP
       port: 80
