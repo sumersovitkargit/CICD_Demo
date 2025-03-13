@@ -1,0 +1,42 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Trigger CI/CD on push to main branch
+
+
+jobs:
+  # CI Job: Build and Push Docker Image to ACR
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Ensure Docker Daemon is Running
+      - name: Start Docker Service
+        run: |
+          sudo systemctl start docker
+          sudo systemctl enable docker
+          sudo systemctl status docker
+      
+      # Set up QEMU & Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+     
+      
+      # Log in to Azure ACR using Service Principal
+      - name: Log in to Azure ACR
+        run: |
+          az acr login --name ${{ secrets.AZURE_REGISTRY_NAME }} \
+            --username ${{ secrets.AZURE_SP_ClientID }} \
+            --password ${{ secrets.AZURE_SP_Secret }}
+      
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/webpage:${{ github.sha }} .
+          docker tag ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/webpage:${{ github.sha }} ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/my-app:latest
+          docker push ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/webpage:${{ github.sha }}
+          docker push ${{ secrets.AZURE_REGISTRY_NAME }}.azurecr.io/webpage:latest
